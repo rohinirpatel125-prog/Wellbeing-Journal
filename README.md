@@ -5,6 +5,8 @@ pattern comparisons. It describes *your own* patterns only and never diagnoses a
 
 **Stack:** React (Vite) · Node.js + Express REST API · MongoDB (Mongoose) · express-validator · responsive CSS
 
+An alternative Python/Streamlit implementation is provided in `streamlit_app.py`.
+
 ## Features
 - Add, edit, delete daily entries (one per date): sleep hours, mood/energy/stress (1-5), routines, notes
 - Trends: 7 / 14 / 30 / 90-day averages, change vs the previous period, line chart and sleep bar chart
@@ -15,6 +17,9 @@ pattern comparisons. It describes *your own* patterns only and never diagnoses a
 ## Project structure
 ```
 wellbeing-journal-app/
+├── streamlit_app.py       Python Streamlit app (alternative deployment)
+├── journal_logic.py       validation and trend calculations for Streamlit
+├── requirements.txt       Python dependencies for Streamlit
 ├── server/                 Express API
 │   ├── server.js           connects to MongoDB, starts the server
 │   ├── app.js              middleware + routes
@@ -28,6 +33,25 @@ wellbeing-journal-app/
 └── client/                 React app (Vite)
     └── src/ App.jsx, api.js, components/ (EntryForm, EntryList, Trends), styles.css
 ```
+
+## Deploy the Streamlit version
+
+The Streamlit entry point is the Python file **`streamlit_app.py`** in the repository root. Do not select the React `client/src/main.jsx` or Express `server/server.js` files as the Streamlit main file.
+
+To run locally:
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+The app reads `MONGODB_URI` from the environment, a local `.env`, or Streamlit secrets. For Streamlit Community Cloud, deploy this GitHub repository with `streamlit_app.py` as the main file, then add both values in **App settings -> Secrets** (use your own MongoDB Atlas URI and a strong private password; never commit them):
+```toml
+MONGODB_URI = "mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority"
+APP_PASSWORD = "choose-a-strong-private-password"
+```
+
+The Streamlit version stores entries in the `entries` collection and uses `wellbeing_journal` if the URI does not specify a database. Ensure your MongoDB Atlas network access permits the Streamlit app to connect.
+The Streamlit version is protected by one shared password; every person who knows it can view and change the same journal. It does not provide separate user accounts.
 
 ## REST API
 | Method | URL | Purpose |
